@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.com">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -20,13 +21,30 @@
       <li class="nav-item active">
         <a class="nav-link" href="#">Home</a>
       </li>
+      
+      
+      
+        <span sec:authorize="hasAnyAuthority('EDITOR', 'ADMIN' )">
       <li class="nav-item active">
         <a class="nav-link" href="addemployee">  Add Employee</a>
+        </span>
       </li>
       </ul>
+      <span class="float-right">
+       			<a type="button" class="btn btn-xl btn-danger " th:href="@{/logout}">Logout</a>
+      </span>
+ 
 </nav>
     
     <!-- Nav Bar -->
+    
+       <span sec:authorize="isAuthenticated()">
+           Welcome <b><span sec:authentication="name">Username</span></b> &nbsp;
+           Role <b><i><span sec:authentication="principal.authorities">Roles</span></i></b>
+       </span>
+  
+ 
+   
     
     <div th:if=${session.msg}>
          <div class="alert alert-success" role="alert" th:text="${session.msg}">
@@ -44,7 +62,7 @@
       <th scope="col">Email</th>
       <th scope="col">Mobile Number</th>
       <th scope="col">Salary</th>     
-      <th scope="col">Action</th>
+      <th sec:authorize="hasAnyAuthority('ADMIN', 'EDITOR')" scope="col">Action</th>
     </tr>
   </thead>
   <tbody>
@@ -56,14 +74,41 @@
       <td th:text="${e.phoneno}"></td>
       <td th:text="${e.salary}"></td>
       <td>
+      
+      <span sec:authorize="hasAnyAuthority('ADMIN', 'EDITOR')">
       <a class="btn btn-sm btn-success" th:href="@{/edit/{id}(id=${e.id})}">Update</a>
+      </span>
+      
+      <span sec:authorize="hasAnyAuthority('ADMIN')">
       <a class="btn btn-sm btn-danger" th:href="@{/delete/{id}(id=${e.id})}">Delete</a>
+      </span>
       </td>
     </tr>
   </tbody>
 </table>
  
  </div>
+ 
+ <div class="container">
+
+		<p>Total Emp: [[${totalItem}]]</p>
+
+		<nav aria-label="Page navigation example">
+			<ul class="pagination">
+				<li th:if="${currentPage !=0}" class="page-item"><a class="page-link" th:href="@{'/page/'+${currentPage-1}}">Previous</a></li>
+
+
+				<li th:each="i:${#numbers.sequence(1,totalPages)}"  th:classappend="${currentPage==i-1 ? 'active' : '' }"  class="page-item">
+				
+				<a class="page-link" th:href="@{'/page/'+${i-1}}">[[${i}]]</a>
+				
+				
+				</li>
+
+				<li th:if="${currentPage+1!=totalPages}" class="page-item"><a class="page-link" th:href="@{'/page/'+${currentPage+1}}">Next</a></li>
+			</ul>
+		</nav>
+	</div>
 
 
     <!-- Optional JavaScript -->
